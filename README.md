@@ -6,6 +6,7 @@
 
 [![CI](https://github.com/yawningbrain/multipleTimescalesRNN/actions/workflows/ci.yml/badge.svg)](https://github.com/yawningbrain/multipleTimescalesRNN/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.10%2B-2a78d6)
+[![License: MIT](https://img.shields.io/badge/license-MIT-1baf7a)](LICENSE)
 [![arXiv](https://img.shields.io/badge/arXiv-2110.09165-eb6834)](https://arxiv.org/abs/2110.09165)
 
 <img src="docs/assets/hero.png" alt="Two example units, their autocorrelation functions, and the timescale ratio versus self-coupling" width="100%">
@@ -125,6 +126,7 @@ with a data dictionary in [`results/README.md`](results/README.md):
 | `experiments/` | `validate_claims.py` (claim checks + CSV export), `make_hero.py` (README figure) |
 | `results/` | Simulation data and figures |
 | `tests/` | `pytest` suite (run in CI) |
+| `LICENSE`, `CITATION.cff` | MIT license; citation metadata |
 | [`docs/ROADMAP.md`](docs/ROADMAP.md) | Plan for making the project more professional |
 
 ## Changes in this version

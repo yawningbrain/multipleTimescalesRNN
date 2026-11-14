@@ -11,23 +11,19 @@ Status of each item is explicit. Effort is a rough estimate for one person.
 - [x] Reproducible experiment script with caching; tidy CSV + JSON data and a data dictionary
 - [x] README with hero figure, results table and an explicit list of what was *not* checked
 
-## Decisions needed from you
+## Decisions (resolved)
 
-| Question | Why it blocks things |
-|---|---|
-| **Which license?** (MIT / BSD-3 / Apache-2.0 are the usual choices for research code) | No `LICENSE` file exists, so legally nobody may reuse the code. I should not choose this for you. |
-| **Who are the authors / who should be cited?** | Needed for `CITATION.cff` and the package metadata (`pyproject.toml` has none). The repo was forked from `nistrate/multipleTimescalesRNN`; credit and the paper's authorship should be stated deliberately. |
-| **Open a PR to the upstream repo, or keep this fork as the home?** | Changes how releases, badges and CI URLs should point. |
-| **Is a `master` -> `main` rename wanted?** | Cosmetic, but easier to do before others depend on the URL. |
+- License: MIT (`LICENSE`). Author: Nicolae Istrate (`CITATION.cff`, `pyproject.toml`).
+- Still open: whether to also upstream to another repository, and a `master` -> `main` rename.
 
 ## Phase 1: repository hygiene (about 0.5 day)
 
-1. `LICENSE` once decided; `CITATION.cff` (software) pointing to the paper.
+1. ~~`LICENSE`, `CITATION.cff`~~ (done).
 2. `CHANGELOG.md` (the README's "What changed" section is the seed) and a `v0.2.0` git tag/release.
 3. `CONTRIBUTING.md` (how to run tests and experiments, code style).
 4. Pre-commit with `ruff` (lint + format) and `nbstripout`/output policy for notebooks, so diffs stay reviewable. Run the same checks in CI.
 5. Branch protection on the default branch: require CI and a review.
-6. `__version__` in the package; fill in `authors`, `license`, `urls` in `pyproject.toml`.
+6. `__version__` in the package (authors, license and URLs in `pyproject.toml` are done).
 7. Run the notebooks in CI (e.g. `nbmake` with a reduced `t_end`) so they cannot silently rot.
 
 ## Phase 2: scientific credibility (the highest-value work; 2-4 days)

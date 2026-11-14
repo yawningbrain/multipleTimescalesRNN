@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it and the accompanying paper."
+title: "multipleTimescalesRNN: a reservoir of timescales in random neural networks"
+type: software
+authors:
+  - family-names: Istrate
+    given-names: Nicolae
+license: MIT
+repository-code: "https://github.com/yawningbrain/multipleTimescalesRNN"
+references:
+  - type: article
+    title: "A reservoir of timescales in random neural networks"
+    authors:
+      - family-names: Stern
+        given-names: Merav
+      - family-names: Istrate
+        given-names: Nicolae
+      - family-names: Mazzucato
+        given-names: Luca
+    year: 2021
+    url: "https://arxiv.org/abs/2110.09165"
+    notes: "arXiv:2110.09165"
