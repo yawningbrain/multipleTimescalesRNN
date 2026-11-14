@@ -1,36 +1,52 @@
+<div align="center">
+
 # A reservoir of timescales in random neural networks
+
+**Simulate random recurrent networks with heterogeneous self-couplings and measure the timescales they produce.**
+
+[![CI](https://github.com/yawningbrain/multipleTimescalesRNN/actions/workflows/ci.yml/badge.svg)](https://github.com/yawningbrain/multipleTimescalesRNN/actions/workflows/ci.yml)
+![Python](https://img.shields.io/badge/python-3.10%2B-2a78d6)
+[![arXiv](https://img.shields.io/badge/arXiv-2110.09165-eb6834)](https://arxiv.org/abs/2110.09165)
+
+<img src="docs/assets/hero.png" alt="Two example units, their autocorrelation functions, and the timescale ratio versus self-coupling" width="100%">
+
+</div>
 
 Code accompanying Stern, Istrate & Mazzucato, [*A reservoir of timescales in random neural networks*](https://arxiv.org/abs/2110.09165).
 
-The model is a random recurrent rate network whose units have heterogeneous
-self-couplings `s_i`:
+**Contents:** [The model](#the-model) · [Quick start](#quick-start) · [Usage](#usage) · [Does it reproduce the paper?](#does-it-reproduce-the-paper) · [Data](#data) · [Repository layout](#repository-layout) · [What changed](#what-changed-in-this-version)
+
+## The model
+
+Units have heterogeneous self-couplings `s_i` and random Gaussian couplings:
 
 ```
-dx_i/dt = -x_i + s_i tanh(x_i) + sum_{j != i} J_ij tanh(x_j),    J_ij ~ Normal(0, g^2 / N)
+dx_i/dt = -x_i + s_i tanh(x_i) + sum_{j != i} J_ij tanh(x_j),      J_ij ~ Normal(0, g^2 / N)
 ```
 
-Units sharing a self-coupling form a population. The paper shows that the
-network then contains one timescale per distinct self-coupling (`card(S)`
-timescales), measured as the half width at half maximum (HWHM) of the
-autocorrelation function of `tanh(x)`.
+Units that share a self-coupling form a population. The paper shows the network
+then contains one timescale per distinct self-coupling (`card(S)` timescales),
+measured as the half width at half maximum (HWHM) of the autocorrelation
+function of `tanh(x)`.
 
-## Setup
+## Quick start
 
 ```bash
-git clone https://github.com/nistrate/multipleTimescalesRNN.git
+git clone https://github.com/yawningbrain/multipleTimescalesRNN.git
 cd multipleTimescalesRNN
 python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[notebook,dev]"
+pytest                    # 16 tests, about a second
+jupyter notebook          # open "A reservoir of timescales in random neural networks.ipynb"
 ```
 
-TensorFlow is **no longer required**: the autocorrelation is now computed with
-NumPy's FFT.
+TensorFlow is **no longer required**: the autocorrelation is computed with NumPy's FFT.
 
 ## Usage
 
 ```python
-from rnn_library import make_coupling_matrix, simulate, population_acfs, timescales
 import numpy as np
+from rnn_library import make_coupling_matrix, simulate, population_acfs, timescales
 
 N_values, s_values = [750, 750], [1.0, 3.0]
 J = make_coupling_matrix(N_values, s_values, g=2.0, rng=0)
@@ -41,23 +57,12 @@ acfs = population_acfs(x, N_values, max_lag=max_lag)       # one averaged ACF pe
 print(timescales(np.arange(max_lag) * 0.1, acfs))          # HWHM in ms, one per population
 ```
 
-| Path | Contents |
-|---|---|
-| `rnn_library/network.py` | `make_coupling_matrix`, `simulate` |
-| `rnn_library/analysis.py` | FFT autocorrelation, per-population ACFs, HWHM timescales |
-| `rnn_library/plotting.py` | ACF + example-traces figure |
-| `A reservoir of timescales in random neural networks.ipynb` | Summary of the paper's model and a worked example |
-| `misc/UI_version.ipynb` | Same, with interactive prompts for the parameters |
-| `experiments/validate_claims.py` | Numerical checks of the paper's claims (see below) |
-| `tests/` | `pytest` suite |
-
-Run the tests with `pytest`.
-
-## Checking the paper's claims
+## Does it reproduce the paper?
 
 `python experiments/validate_claims.py` runs 67 independent simulations in
-parallel (N=1000 units, g=2, 6000 ms each, ~20 min on 32 cores; finished runs are cached) and writes figures and raw
-data to `results/`. 
+parallel (N=1000 units, g=2, 6000 ms each, ~20 min on 32 cores; finished runs
+are cached) and writes figures and data to [`results/`](results/).
+
 All numbers are mean ± s.d. over 4 networks (3 for the K = 3 case), `g = 2`, `N = 1000`,
 6000 ms of data after a 200 ms transient, HWHM timescales in ms.
 
@@ -85,11 +90,42 @@ Not checked: the paper's transition-to-chaos line `s_c(g)`, the mean-field fixed
 stability criterion, the switching-time scaling `log T ~ s^2 - s log s`, and the
 spiking-network and input-demixing sections.
 
+<details>
+<summary>Figures</summary>
+
 ![tau vs s2](results/scan_s.png)
 ![ratio vs n2](results/scan_n.png)
 ![rare slow population](results/scan_s_rare.png)
 ![three populations](results/three_pops.png)
 
+</details>
+
+## Data
+
+All simulation output is in [`results/`](results/) as tidy CSVs plus the raw JSON,
+with a data dictionary in [`results/README.md`](results/README.md):
+
+| File | Contents |
+|---|---|
+| [`timescales.csv`](results/timescales.csv) | HWHM timescale of every population in every simulation |
+| [`summary.csv`](results/summary.csv) | Mean ± s.d. over seeds per setting |
+| [`unit_timescales.csv`](results/unit_timescales.csv) | Single-unit timescales for the three-population run |
+| [`example_acfs.csv`](results/example_acfs.csv), [`example_traces.csv`](results/example_traces.csv) | Data behind the figure above |
+| [`raw.json`](results/raw.json) | Full records (source of truth) |
+
+## Repository layout
+
+| Path | Contents |
+|---|---|
+| `rnn_library/network.py` | `make_coupling_matrix`, `simulate` |
+| `rnn_library/analysis.py` | FFT autocorrelation, per-population ACFs, HWHM timescales |
+| `rnn_library/plotting.py` | ACF + example-traces figure |
+| `A reservoir of timescales in random neural networks.ipynb` | Summary of the paper's model and a worked example |
+| `misc/UI_version.ipynb` | Same, with interactive prompts for the parameters |
+| `experiments/` | `validate_claims.py` (claim checks + CSV export), `make_hero.py` (README figure) |
+| `results/` | Simulation data and figures |
+| `tests/` | `pytest` suite (run in CI) |
+| [`docs/ROADMAP.md`](docs/ROADMAP.md) | Plan for making the project more professional |
 
 ## Changes in this version
 

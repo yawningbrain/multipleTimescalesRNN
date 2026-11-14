@@ -213,6 +213,48 @@ def plot(rows):
     fig.tight_layout(); fig.savefig(RESULTS / "three_pops.png", dpi=150); plt.close(fig)
 
 
+# --------------------------------------------------------------- CSV export
+def export_csv(rows):
+    """Write tidy CSVs next to raw.json (see results/README.md for the columns)."""
+    import csv
+
+    def fmt(v):
+        return "" if v is None else f"{v:.6g}"
+
+    with open(RESULTS / "timescales.csv", "w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["experiment", "seed", "population", "n_units", "n_total", "frac",
+                    "s", "g", "t_end_ms", "tau_hwhm_ms"])
+        for r in rows:
+            n_tot = sum(r["N"])
+            for k, (n, s_k, tau) in enumerate(zip(r["N"], r["s"], r["tau"])):
+                w.writerow([r["exp"], r["seed"], k, n, n_tot, f"{n / n_tot:.4g}",
+                            s_k, r.get("g", G), T_END, fmt(tau)])
+
+    with open(RESULTS / "summary.csv", "w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["experiment", "population", "n_units", "n_total", "s",
+                    "tau_mean_ms", "tau_sd_ms", "n_seeds", "n_censored"])
+        keys = sorted({(r["exp"], tuple(r["N"]), tuple(r["s"])) for r in rows},
+                      key=lambda k: (k[0], k[2], k[1]))
+        for exp, N, s_ in keys:
+            grp = [r for r in rows if (r["exp"], tuple(r["N"]), tuple(r["s"])) == (exp, N, s_)]
+            for k in range(len(N)):
+                m, sd, c = nanmean_sd([r["tau"][k] for r in grp])
+                w.writerow([exp, k, N[k], sum(N), s_[k], f"{m:.6g}", f"{sd:.6g}", len(grp), c])
+
+    with open(RESULTS / "unit_timescales.csv", "w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["experiment", "seed", "unit", "population", "s", "tau_hwhm_ms"])
+        for r in rows:
+            if "tau_units" not in r:
+                continue
+            labels = np.repeat(np.arange(len(r["N"])), r["N"])
+            s_unit = np.repeat(r["s"], r["N"])
+            for i, tau in enumerate(r["tau_units"]):
+                w.writerow([r["exp"], r["seed"], i, labels[i], s_unit[i], fmt(tau)])
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
     ap.add_argument("--plot", action="store_true", help="re-plot from results/raw.json only")
@@ -234,6 +276,7 @@ def main():
                 rows += list(ex.map(run_job, jobs))
             raw.write_text(json.dumps(rows))
     summarise(rows)
+    export_csv(rows)
     plot(rows)
     print(f"\nfigures written to {RESULTS}/")
 
