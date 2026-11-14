@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rnn-library"
+version = "0.2.0"
+description = "Simulate random recurrent networks with heterogeneous self-couplings and measure their reservoir of timescales."
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy", "matplotlib"]
+
+[project.optional-dependencies]
+notebook = ["notebook", "ipykernel"]
+dev = ["pytest"]
+
+[tool.setuptools]
+packages = ["rnn_library"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

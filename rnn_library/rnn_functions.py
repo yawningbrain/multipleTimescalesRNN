@@ -1,45 +1,36 @@
-from numpy import tanh, sign, add, where
+"""Small helpers kept for backward compatibility with the original notebooks.
+
+New code should use :mod:`rnn_library.network` and :mod:`rnn_library.analysis`.
+"""
+
+from .analysis import half_width_at_half_max
+
+
+def _ask(cast, error_message):
+    while True:
+        try:
+            result = cast(input())
+        except ValueError:
+            print(f"\t{error_message} Please try again!")
+            continue
+        print("\tEntry accepted")
+        return result
+
 
 def ask_user_integer():
-    while True:
-        try:
-            result = int(input())
-        except:
-            print("\tThe entry is not an integer. Please try again!")
-            continue
-        else:
-            print('\tEntry accepted')
-            return result
+    """Prompt on stdin until the user enters an integer."""
+    return _ask(int, "The entry is not an integer.")
+
 
 def ask_user_float():
-    while True:
-        try:
-            result = float(input())
-        except:
-            print("\tThe entry is not a number. Please try again!")
-            continue
-        else:
-            print('\tEntry accepted')
-            return result
-        
+    """Prompt on stdin until the user enters a number."""
+    return _ask(float, "The entry is not a number.")
 
-def lin_interp(x, y, i, half):
-    return x[i] + (x[i+1] - x[i]) * ((half - y[i]) / (y[i+1] - y[i]))
 
-def half_max_x(x, y):
-    half = max(y)/2.0
-    signs = sign(add(y, -half))
-    zero_crossings = (signs[0:-2] != signs[1:-1])
-    zero_crossings_i = where(zero_crossings)[0]
-    return [lin_interp(x, y, zero_crossings_i[0], half)]
+def FWHM_funct(time_list, autocorrelation, start=0, end=None):
+    """Half width at half maximum of an ACF (legacy name; returns ``nan`` on failure).
 
-    
-def FWHM_funct(time_list , autocorrelation, start = 0, end = -1):
-    try:
-        hmx = half_max_x(time_list[start:end], autocorrelation[start:end])
-        return hmx[0] 
-
-    except IndexError:
-        print('The ACF did not drop to its half height.')
-        print('Consider Increasing the length of your simulation.')
-       
+    Equivalent to :func:`rnn_library.analysis.half_width_at_half_max` applied
+    to ``[start:end]``.
+    """
+    return half_width_at_half_max(time_list[start:end], autocorrelation[start:end])
